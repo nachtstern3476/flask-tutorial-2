@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Market Page{% endblock %}
+
+{% block content %}
+{% include 'includes/item_modals.html' %}
+<div class="row">
+    <div class="col-8">
+        <h2>Available items on the Market</h2>
+        <p>Click on one of the items to start buying</p>
+        <table class="table table-hover table-dark">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Barcode</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr class="align-middle">
+                    <td>{{item.id}}</td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.barcode}}</td>
+                    <td>{{item.format_price}}</td>
+                    <td>
+                        <button class="btn btn-outline btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal"
+                            data-title="{{item.name}}" data-description="{{item.description}}">More Info</button>
+                        <button class="btn btn-outline btn-success" data-bs-toggle="modal"
+                            data-bs-target="#purchaseModal" data-title="{{item.name}}"
+                            data-price="{{item.format_price}}">Purchase this item</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-4">
+        <h2>Purchased Item</h2>
+        <p>Click on sell to put an item back to market</p>
+        <div class="h-100 bg-dark rounded-4">
+            <div class="row p-4">
+                {% for item in owned_items %}
+                <div class="col-12">
+                    <div class="card mb-3">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">{{item.name}}</h5>
+                                <p class="card-text">This item cost {{item.format_price}}</p>
+                            </div>
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#sellModal"
+                                data-title="{{item.name}}" data-price="{{item.format_price}}">Sell Item</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block custom_script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function (e) {
+        modalInfo = document.getElementById('infoModal');
+        modalInfo.addEventListener('show.bs.modal', event => {
+            modalBtn = event.relatedTarget;
+            modalInfo.querySelector('#infoModalLabel').textContent = modalBtn.dataset.title;
+            modalInfo.querySelector('#infoModal .modal-body').textContent = modalBtn.dataset.description;
+        });
+
+        modalPurchase = document.getElementById('purchaseModal');
+        modalPurchase.addEventListener('show.bs.modal', event => {
+            modalBtn = event.relatedTarget;
+            modalPurchase.querySelector('#purchaseModalLabel').textContent = modalBtn.dataset.title;
+            modalPurchase.querySelector('#purchaseModal .item-name').textContent = modalBtn.dataset.title;
+            modalPurchase.querySelector('#purchaseModal .item-price').textContent = modalBtn.dataset.price;
+            modalPurchase.querySelector('#purchased_item').value = modalBtn.dataset.title;
+        });
+
+        modalSell = document.getElementById('sellModal');
+        modalSell.addEventListener('show.bs.modal', event => {
+            modalBtn = event.relatedTarget;
+            modalSell.querySelector('#sellModalLabel').textContent = modalBtn.dataset.title;
+            modalSell.querySelector('#sellModal .item-name').textContent = modalBtn.dataset.title;
+            modalSell.querySelector('#sellModal .item-price').textContent = modalBtn.dataset.price;
+            modalSell.querySelector('#sold_item').value = modalBtn.dataset.title;
+        });
+    })
+</script>
+{% endblock %}
